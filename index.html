@@ -3,27 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Базис - Мега Школа</title>
+    <title>Базис - Вхід</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
-        /* --- Глобальні стилі --- */
+        /* --- ГЛОБАЛЬНІ СТИЛІ --- */
         :root {
-            --bg-gradient-start: #5a46a5;
-            --bg-gradient-end: #8e7fcf;
+            --bg-gradient-start: #4834d4;
+            --bg-gradient-end: #686de0;
             --card-bg: rgba(255, 255, 255, 0.15);
             --card-border: rgba(255, 255, 255, 0.2);
             --text-light: #ffffff;
             
-            /* Кольори предметів */
-            --color-math: #f1c40f;   /* Жовтий */
-            --color-geo: #3498db;    /* Синій */
-            --color-nature: #2ecc71; /* Зелений */
-            --color-ukr: #e84393;    /* Рожевий */
-            --color-eng: #e17055;    /* Помаранчевий */
-            --color-it: #00cec9;     /* Бірюзовий */
-            --color-logic: #6c5ce7;  /* Фіолетовий */
+            --color-math: #f1c40f;
+            --color-ukr: #e84393;
+            --color-eng: #e17055;
+            --color-geo: #3498db;
+            --color-it: #00cec9;
+            --color-nature: #2ecc71;
+            --color-logic: #6c5ce7;
+            
+            --correct: #2ecc71;
+            --wrong: #e74c3c;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
@@ -34,72 +36,84 @@
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
+            position: relative;
             user-select: none;
         }
 
-        #app-container { max-width: 1200px; margin: 0 auto; width: 100%; }
+        /* Фон */
+        .background-shapes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .shape { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.05); animation: float 20s infinite linear; }
+        .shape:nth-child(1) { width: 200px; height: 200px; top: 10%; left: 10%; animation-duration: 25s; }
+        .shape:nth-child(2) { width: 300px; height: 300px; top: 60%; left: 80%; animation-duration: 35s; }
+        
+        @keyframes float { 0% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-50px) rotate(180deg); } 100% { transform: translateY(0) rotate(360deg); } }
 
-        /* Анімації */
-        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-30px);} 60% {transform: translateY(-15px);} }
-        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-        .anim-correct { animation: bounce 1s; }
-        .anim-wrong { animation: shake 0.4s; }
-        .anim-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #app-container { max-width: 1200px; margin: 0 auto; width: 100%; position: relative; z-index: 2; transition: filter 0.3s; }
+        /* Клас для розмиття фону при вході */
+        .blur-content { filter: blur(10px); pointer-events: none; }
 
         /* UI Елементи */
+        .glass-card {
+            background: var(--card-bg); border: 2px solid var(--card-border);
+            border-radius: 25px; padding: 25px; backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15); margin-bottom: 20px;
+        }
+
         .glass-button {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 10px 20px;
-            border-radius: 20px;
-            color: var(--text-light);
-            font-weight: 700;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex; align-items: center; gap: 10px;
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            padding: 10px 20px; border-radius: 20px; color: var(--text-light);
+            font-weight: 700; backdrop-filter: blur(10px); cursor: pointer;
+            transition: 0.2s; display: flex; align-items: center; gap: 8px;
         }
         .glass-button:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
+        .glass-button:active { transform: translateY(0); }
         .glass-button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .glass-card {
-            background: var(--card-bg);
-            border: 2px solid var(--card-border);
-            border-radius: 25px;
-            padding: 25px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            margin-bottom: 20px;
+        /* Input поля (для реєстрації) */
+        .glass-input {
+            width: 100%; background: rgba(0,0,0,0.2); border: 2px solid var(--card-border);
+            padding: 15px; border-radius: 15px; color: white; font-size: 1.1rem;
+            margin-bottom: 15px; outline: none; transition: 0.3s;
         }
+        .glass-input:focus { background: rgba(0,0,0,0.4); border-color: #ffd700; }
+        .glass-input::placeholder { color: rgba(255,255,255,0.5); }
 
         /* Навігація */
         .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
-        .hearts-display { font-size: 1.5rem; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px; letter-spacing: 5px; }
+        .hearts-display { font-size: 1.5rem; background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 20px; letter-spacing: 3px; }
 
-        /* Сітка предметів */
-        .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-        .shop-item { 
-            text-align: center; border: 2px solid transparent; transition: 0.3s; cursor: pointer;
-            display: flex; flex-direction: column; justify-content: center; min-height: 180px;
+        /* Профіль */
+        .profile-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 25px; }
+        @media (max-width: 768px) { .profile-grid { grid-template-columns: 1fr; } }
+
+        .stat-bar { padding: 15px; border-radius: 15px; margin-bottom: 15px; font-weight: 700; display: flex; justify-content: space-between; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1); }
+        .avatar-img {
+            width: 120px; height: 120px; background-color: #ffd900;
+            border-radius: 30px; border: 4px solid rgba(255,255,255,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 4rem; margin-bottom: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        .shop-item:hover { border-color: #ffd700; background: rgba(255,255,255,0.25); transform: translateY(-5px); }
+        .avatar-img.premium { background: linear-gradient(45deg, #ff00cc, #333399); box-shadow: 0 0 20px #ff00cc; border-color: white;}
+
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 20px; border-radius: 15px; font-size: 0.95rem;
+            background: rgba(0,0,0,0.2); margin-bottom: 10px;
+        }
+        .history-item.correct { border-left: 5px solid var(--correct); background: rgba(46, 204, 113, 0.2); }
+        .history-item.wrong { border-left: 5px solid var(--wrong); background: rgba(231, 76, 60, 0.2); }
+
+        /* Магазин */
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .shop-item { 
+            text-align: center; cursor: pointer; min-height: 180px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: transform 0.2s;
+        }
+        .shop-item:hover { background: rgba(255,255,255,0.25); transform: translateY(-5px); }
 
         /* Квіз */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: #2c2c54; border: 2px solid #5a46a5;
-            padding: 30px; border-radius: 25px; max-width: 500px; width: 90%;
-            text-align: center; color: white;
-            box-shadow: 0 0 50px rgba(90, 70, 165, 0.5);
-        }
-        
+        .quiz-container { max-width: 600px; margin: 0 auto; text-align: center; }
         .option-btn {
             width: 100%; background: rgba(255, 255, 255, 0.95); color: #333;
             border: none; padding: 18px; margin-bottom: 12px; border-radius: 15px;
@@ -107,21 +121,60 @@
             box-shadow: 0 4px 0 #ccc; transition: 0.1s;
         }
         .option-btn:active { transform: translateY(4px); box-shadow: none; }
-        .option-btn.correct { background: #2ecc71; color: white; box-shadow: 0 4px 0 #27ae60; }
-        .option-btn.wrong { background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
+        .option-btn.correct { background: #2ecc71 !important; color: white !important; box-shadow: 0 4px 0 #27ae60 !important; }
+        .option-btn.wrong { background: #e74c3c !important; color: white !important; box-shadow: 0 4px 0 #c0392b !important; }
 
-        .avatar-img {
-            width: 100px; height: 100px; background-color: #ffd900;
-            border-radius: 25px; border: 4px solid rgba(255,255,255,0.5);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3.5rem; margin: 0 auto 15px;
+        /* Анімації */
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .anim-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* Модальні вікна */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 2000;
         }
-        .avatar-img.premium { background: linear-gradient(45deg, #ff00cc, #333399); box-shadow: 0 0 15px #ff00cc; border-color: white;}
+        .modal-content {
+            background: #2c2c54; border: 2px solid #5a46a5;
+            padding: 30px; border-radius: 25px; max-width: 500px; width: 90%;
+            text-align: center; color: white; box-shadow: 0 0 50px rgba(90, 70, 165, 0.5);
+        }
+
+        /* Екран авторизації */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(44, 44, 84, 0.95); z-index: 5000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .auth-card {
+            background: #2c2c54; padding: 40px; border-radius: 30px;
+            border: 2px solid rgba(255,255,255,0.2); text-align: center;
+            max-width: 400px; width: 90%;
+            box-shadow: 0 0 100px rgba(108, 92, 231, 0.4);
+        }
+
     </style>
 </head>
 <body>
+    
+    <div class="background-shapes">
+        <div class="shape"></div><div class="shape"></div>
+    </div>
 
-    <div id="app-container">
+    <div id="auth-overlay">
+        <div class="auth-card anim-pop">
+            <div style="font-size: 4rem; margin-bottom: 10px;">👋</div>
+            <h1 style="margin-bottom: 10px;">Вітаємо в Базис!</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Створи свій профіль, щоб почати гру.</p>
+            
+            <input type="text" id="username-input" class="glass-input" placeholder="Як тебе звати?" autocomplete="off">
+            <button class="glass-button" style="width: 100%; justify-content: center; font-size: 1.1rem; background: var(--color-nature);" onclick="registerUser()">
+                Почати Пригоду 🚀
+            </button>
+        </div>
+    </div>
+
+    <div id="app-container" class="blur-content">
         <nav class="top-nav">
             <div style="display: flex; gap: 10px;">
                 <button class="glass-button" onclick="showHome()">🏠 Головна</button>
@@ -130,7 +183,7 @@
             <div class="hearts-display" id="hearts-display">❤️❤️❤️❤️❤️</div>
             <button class="glass-button" onclick="showProfile()">
                 <span id="user-coins-display">💰 0</span> 
-                <span style="margin-left:10px;">👤 Профіль</span>
+                <span style="margin-left:10px; display:flex; gap:5px;">👤 <span id="nav-username">Гість</span></span>
             </button>
         </nav>
 
@@ -142,111 +195,74 @@
     <audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
 
     <script>
-        /* --- 1. РОЗШИРЕНА БАЗА ДАНИХ --- */
+        /* --- 1. ДАНІ --- */
         const quizData = {
-            math: {
-                title: "Математика", color: "var(--color-math)", icon: "➗",
-                theory: "Множення — це додавання одного й того ж числа кілька разів. 3 * 4 — це як 3 + 3 + 3 + 3.",
-                questions: [
-                    { q: "Скільки буде 6 + 6?", a: ["10", "12", "14", "11"], correct: 1, explain: "6 + 4 = 10, і ще + 2 = 12." },
-                    { q: "Скільки кутів у квадрата?", a: ["3", "4", "5", "10"], correct: 1, explain: "У квадрата завжди 4 рівних сторони і 4 кути." },
-                    { q: "10 мінус 3?", a: ["6", "7", "8", "5"], correct: 1, explain: "Якщо від 10 пальців забрати 3, залишиться 7." }
-                ]
-            },
-            ukr: {
-                title: "Укр. Мова", color: "var(--color-ukr)", icon: "📚",
-                theory: "Іменник — це частина мови, що означає предмет і відповідає на питання: Хто? або Що? (Наприклад: кіт, стіл).",
-                questions: [
-                    { q: "Яке слово відповідає на питання Хто?", a: ["Стіл", "Дерево", "Школяр", "Сонце"], correct: 2, explain: "Школяр — це жива людина, тому 'Хто?'. Інше — це 'Що?'." },
-                    { q: "Антонім до слова 'День'?", a: ["Ранок", "Ніч", "Світло", "Вечір"], correct: 1, explain: "Антонім — це протилежне значення. Протилежність дня — це ніч." },
-                    { q: "Скільки букв в алфавіті?", a: ["33", "32", "26", "30"], correct: 0, explain: "В українському алфавіті рівно 33 літери." }
-                ]
-            },
-            eng: {
-                title: "English", color: "var(--color-eng)", icon: "🇬🇧",
-                theory: "В англійській мові 'Hello' означає Привіт, а 'Goodbye' — До побачення.",
-                questions: [
-                    { q: "Як перекладається 'Cat'?", a: ["Собака", "Кіт", "Миша", "Птах"], correct: 1, explain: "Cat — це котик. Собака буде Dog." },
-                    { q: "Який це колір: 'Red'?", a: ["Синій", "Зелений", "Червоний", "Жовтий"], correct: 2, explain: "Red — це червоний колір." },
-                    { q: "Що означає 'Thank you'?", a: ["Будь ласка", "Вибач", "Привіт", "Дякую"], correct: 3, explain: "Ми кажемо Thank you, коли дякуємо комусь." }
-                ]
-            },
-            geo: {
-                title: "Географія", color: "var(--color-geo)", icon: "🌍",
-                theory: "Глобус — це модель Землі. На ньому синім кольором позначають воду, а іншими кольорами — сушу.",
-                questions: [
-                    { q: "Столиця України?", a: ["Львів", "Одеса", "Київ", "Харків"], correct: 2, explain: "Київ — серце нашої держави." },
-                    { q: "Найбільша річка України?", a: ["Дунай", "Дніпро", "Десна", "Дністер"], correct: 1, explain: "Дніпро — найдовша і найбільша річка, що тече через Київ." }
-                ]
-            },
-            it: {
-                title: "Інформатика", color: "var(--color-it)", icon: "💻",
-                theory: "Комп'ютер складається з монітора (щоб бачити), клавіатури (щоб писати) та мишки (щоб керувати).",
-                questions: [
-                    { q: "Чим ми вводимо текст?", a: ["Мишкою", "Монітором", "Клавіатурою", "Принтером"], correct: 2, explain: "На клавіатурі є багато кнопок з літерами." },
-                    { q: "Що таке 'Інтернет'?", a: ["Гра", "Всесвітня мережа", "Програма", "Магазин"], correct: 1, explain: "Інтернет з'єднує всі комп'ютери світу в одну мережу." }
-                ]
-            },
-            nature: {
-                title: "Природа", color: "var(--color-nature)", icon: "🌿",
-                theory: "Рослини живі. Вони п'ють воду корінням і дихають листям. Їм потрібне сонце для росту.",
-                questions: [
-                    { q: "Хто впадає в сплячку взимку?", a: ["Заєць", "Ведмідь", "Вовк", "Горобець"], correct: 1, explain: "Ведмеді сплять у барлозі всю зиму." },
-                    { q: "Що дає нам корова?", a: ["Яйця", "Молоко", "Вовну", "Мед"], correct: 1, explain: "Корова дає молоко. Яйця — курка, мед — бджола." }
-                ]
-            },
-            logic: {
-                title: "Логіка", color: "var(--color-logic)", icon: "🧩",
-                theory: "Логіка вчить нас думати послідовно. Якщо сьогодні вівторок, то вчора був понеділок, а завтра буде середа.",
-                questions: [
-                    { q: "Що зайве: Яблуко, Груша, М'яч, Банан?", a: ["Яблуко", "М'яч", "Банан", "Груша"], correct: 1, explain: "М'яч — це іграшка, а все інше — фрукти." },
-                    { q: "Продовж ряд: 2, 4, 6, 8, ...?", a: ["9", "10", "11", "12"], correct: 1, explain: "Ми додаємо по 2: 8 + 2 = 10." }
-                ]
-            }
+            math: { title: "Математика", color: "var(--color-math)", icon: "➗", theory: "Множення - це додавання.", questions: [{ q: "5 + 5?", a: ["10", "15", "20"], correct: 0, explain: "5 + 5 = 10" }, { q: "2 * 3?", a: ["5", "6", "8"], correct: 1, explain: "2 + 2 + 2 = 6" }] },
+            ukr: { title: "Укр. Мова", color: "var(--color-ukr)", icon: "📚", theory: "Іменник - Хто? Що?", questions: [{ q: "Хто?", a: ["Стіл", "Кіт", "Сонце"], correct: 1, explain: "Кіт - живий" }, { q: "Антонім до Білий?", a: ["Сірий", "Чорний", "Світлий"], correct: 1, explain: "Чорний - протилежне" }] },
+            eng: { title: "English", color: "var(--color-eng)", icon: "🇬🇧", theory: "Red - червоний.", questions: [{ q: "Dog?", a: ["Кіт", "Пес", "Миша"], correct: 1, explain: "Dog is Dog" }, { q: "Red?", a: ["Синій", "Жовтий", "Червоний"], correct: 2, explain: "Red is Red" }] },
+            geo: { title: "Географія", color: "var(--color-geo)", icon: "🌍", theory: "Земля кругла.", questions: [{ q: "Столиця?", a: ["Львів", "Київ", "Одеса"], correct: 1, explain: "Київ - столиця" }] },
+            it: { title: "IT", color: "var(--color-it)", icon: "💻", theory: "ПК - це машина.", questions: [{ q: "Ввід?", a: ["Мишка", "Клавіатура"], correct: 1, explain: "Клавіатура має літери" }] },
+            nature: { title: "Природа", color: "var(--color-nature)", icon: "🌿", theory: "Кисень від дерев.", questions: [{ q: "Сплячка?", a: ["Заєць", "Ведмідь"], correct: 1, explain: "Ведмідь спить" }] },
+            logic: { title: "Логіка", color: "var(--color-logic)", icon: "🧩", theory: "Думай.", questions: [{ q: "Зайве?", a: ["Яблуко", "М'яч", "Груша"], correct: 1, explain: "М'яч не їдять" }] }
         };
 
-        // Стан користувача
         let userStats = {
-            coins: 1200, level: 5, hearts: 5, maxHearts: 5, 
-            inventory: [], achievements: ["newbie"]
+            name: "Гість", // Додали ім'я
+            coins: 100, level: 1, hearts: 5, maxHearts: 5, inventory: [], history: [] 
         };
 
+        let currentQuizState = { categoryKey: null, qIndex: 0 };
         const app = document.getElementById('app');
-        const heartsDisplay = document.getElementById('hearts-display');
-        const coinsDisplay = document.getElementById('user-coins-display');
 
-        /* --- 2. ФУНКЦІОНАЛ --- */
+        /* --- ФУНКЦІЇ АВТОРИЗАЦІЇ (НОВЕ) --- */
+        function registerUser() {
+            const input = document.getElementById('username-input');
+            const name = input.value.trim();
+            
+            if(name.length < 2) {
+                alert("Введи хоча б 2 літери!");
+                return;
+            }
+
+            // Зберігаємо ім'я
+            userStats.name = name;
+            
+            // Оновлюємо інтерфейс
+            document.getElementById('nav-username').textContent = name;
+            
+            // Ховаємо вікно реєстрації
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.getElementById('app-container').classList.remove('blur-content');
+            
+            playSound('correct');
+        }
+
+        /* --- СТАНДАРТНІ ФУНКЦІЇ --- */
         function playSound(type) {
-            const sound = document.getElementById(`sound-${type}`);
-            if (sound) { sound.currentTime = 0; sound.volume = 0.3; sound.play().catch(()=>{}); }
+            const s = document.getElementById(`sound-${type}`);
+            if(s) { s.currentTime=0; s.volume=0.3; s.play().catch(()=>{}); }
         }
 
         function updateHeader() {
-            let heartsStr = "";
-            for(let i=0; i<userStats.maxHearts; i++) heartsStr += i < userStats.hearts ? "❤️" : "🖤";
-            heartsDisplay.textContent = heartsStr;
-            coinsDisplay.textContent = `💰 ${userStats.coins}`;
+            let h = ""; for(let i=0; i<userStats.maxHearts; i++) h += i < userStats.hearts ? "❤️" : "🖤";
+            document.getElementById('hearts-display').textContent = h;
+            document.getElementById('user-coins-display').textContent = `💰 ${userStats.coins}`;
         }
 
-        /* Екрани */
         function showHome() {
             updateHeader();
             app.innerHTML = `
                 <div class="glass-card anim-pop" style="text-align: center;">
-                    <h1>🎓 Обирай урок</h1>
-                    <p style="color: var(--text-muted)">Відкрий для себе нові знання!</p>
+                    <h1>🚀 Привіт, ${userStats.name}!</h1>
+                    <p style="color: var(--text-muted)">Обирай предмет та починай гру!</p>
                 </div>
                 <div class="shop-grid"> 
-                    ${Object.keys(quizData).map(key => {
-                        const item = quizData[key];
-                        return `
-                        <div class="glass-card shop-item" onclick="initQuiz('${key}')" style="border-bottom: 5px solid ${item.color}">
-                            <div style="font-size: 3.5rem; margin-bottom: 15px;">${item.icon}</div>
-                            <h3 style="color: ${item.color}; font-weight:800;">${item.title}</h3>
-                        </div>`;
-                    }).join('')}
-                </div>
-            `;
+                    ${Object.keys(quizData).map(key => `
+                        <div class="glass-card shop-item" onclick="initQuiz('${key}')" style="border-bottom: 5px solid ${quizData[key].color}">
+                            <div style="font-size: 3.5rem; margin-bottom: 10px;">${quizData[key].icon}</div>
+                            <h3 style="color: ${quizData[key].color}">${quizData[key].title}</h3>
+                        </div>`).join('')}
+                </div>`;
         }
 
         function showShop() {
@@ -261,152 +277,116 @@
                         <div style="font-size: 3rem;">❤️</div>
                         <h3>Повне здоров'я</h3>
                         <div style="color: #ffd700; font-weight:bold; margin:10px;">100 💰</div>
-                        <button class="glass-button" style="width:100%; justify-content:center;" onclick="buyItem('heart', 100)">Купити</button>
+                        <button class="glass-button" onclick="buy('heart', 100)">Купити</button>
                     </div>
                     <div class="glass-card shop-item">
                         <div style="font-size: 3rem;">👾</div>
                         <h3>Кібер-Аватар</h3>
                         <div style="color: #ffd700; font-weight:bold; margin:10px;">500 💰</div>
-                        <button class="glass-button" style="width:100%; justify-content:center;" 
-                                ${userStats.inventory.includes('premium_skin') ? 'disabled' : ''}
-                                onclick="buyItem('premium_skin', 500)">
-                                ${userStats.inventory.includes('premium_skin') ? 'Є у тебе' : 'Купити'}
+                        <button class="glass-button" onclick="buy('skin', 500)" ${userStats.inventory.includes('skin') ? 'disabled' : ''}>
+                            ${userStats.inventory.includes('skin') ? 'Куплено' : 'Купити'}
                         </button>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
-        function buyItem(item, price) {
-            if (userStats.coins >= price) {
-                if (item === 'heart') {
-                    if (userStats.hearts >= userStats.maxHearts) return alert("Життя і так повні!");
-                    userStats.hearts = userStats.maxHearts;
-                } else if (item === 'premium_skin') {
-                    userStats.inventory.push('premium_skin');
-                }
-                userStats.coins -= price;
-                playSound('correct');
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-                showShop();
-            } else {
-                playSound('wrong');
-                alert("Мало монет! Треба більше вчитися!");
-            }
+        function buy(item, price) {
+            if(userStats.coins < price) return alert("Мало монет!");
+            if(item === 'heart') { if(userStats.hearts >= 5) return alert("Життя повні!"); userStats.hearts = 5; }
+            if(item === 'skin') userStats.inventory.push('skin');
+            userStats.coins -= price; playSound('correct'); confetti({particleCount: 50, spread: 60, origin: {y: 0.6}}); showShop();
         }
 
         function showProfile() {
-            const hasSkin = userStats.inventory.includes('premium_skin');
+            const hasSkin = userStats.inventory.includes('skin');
+            const historyHTML = userStats.history.map(h => `
+                <div class="history-item ${h.correct ? 'correct' : 'wrong'}">
+                    <span>${h.text}</span><span>${h.correct ? '✅' : '❌'}</span>
+                </div>`).join('');
+
             app.innerHTML = `
-                <div class="glass-card anim-pop" style="text-align:center;">
-                    <div class="avatar-img ${hasSkin ? 'premium' : ''}">${hasSkin ? '👾' : '🤓'}</div>
-                    <h2>Мій Профіль</h2>
-                    <p>Рівень знань: ${userStats.level}</p>
-                </div>
-                <div class="glass-card">
-                    <h3>🏆 Твої досягнення</h3>
-                    <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center; margin-top:15px;">
-                        <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:10px; width:80px; text-align:center;">
-                            <div style="font-size:2rem;">🌅</div><small>Початок</small>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:10px; width:80px; text-align:center; opacity:0.5;">
-                            <div style="font-size:2rem;">🧠</div><small>Розумник</small>
+                <div class="profile-grid anim-pop">
+                    <div class="left-col">
+                        <div class="glass-card">
+                            <h3 style="margin-bottom:15px; text-align:center;">📊 Успішність</h3>
+                            <div class="stat-bar" style="background: var(--color-math); color: #333;"><span>Математика</span><span>78%</span></div>
+                            <div class="stat-bar" style="background: var(--color-ukr); color: #fff;"><span>Укр. Мова</span><span>92%</span></div>
                         </div>
                     </div>
-                </div>
-            `;
+                    <div class="right-col">
+                        <div class="glass-card" style="text-align: center;">
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <div class="avatar-img ${hasSkin ? 'premium' : ''}">${hasSkin ? '👾' : '😎'}</div>
+                                <h2>${userStats.name}</h2>
+                                <p style="color:var(--text-muted)">Рівень ${userStats.level}</p>
+                            </div>
+                            <div style="display:flex; justify-content:space-around; background:rgba(0,0,0,0.2); padding:15px; border-radius:15px; margin-top:15px;">
+                                <div><strong>${userStats.coins}</strong><br><small>Монет</small></div>
+                                <div><strong>${userStats.history.length}</strong><br><small>Відповідей</small></div>
+                            </div>
+                        </div>
+                        <div class="glass-card">
+                            <h3 style="margin-bottom:15px;">Історія</h3>
+                            <div class="history-list">${historyHTML.length ? historyHTML : '<p style="text-align:center; opacity:0.5">Пусто...</p>'}</div>
+                        </div>
+                    </div>
+                </div>`;
         }
 
-        /* ЛОГІКА ТЕСТУВАННЯ */
         function initQuiz(key) {
             if (userStats.hearts <= 0) return alert("💔 Немає життів! Купи в магазині."), showShop();
+            currentQuizState.categoryKey = key; currentQuizState.qIndex = 0;
             const cat = quizData[key];
             app.innerHTML += `
                 <div class="modal-overlay">
                     <div class="modal-content anim-pop">
-                        <h2 style="color:${cat.color}">📚 Урок: ${cat.title}</h2>
-                        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:15px; margin:20px 0; text-align:left; line-height:1.5;">${cat.theory}</div>
-                        <button class="glass-button" style="width:100%; justify-content:center; background:${cat.color};" onclick="startQuiz('${key}')">Розпочати!</button>
+                        <h2 style="color:${cat.color}">📚 ${cat.title}</h2>
+                        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:15px; margin:20px 0; text-align:left;">${cat.theory}</div>
+                        <button class="glass-button" style="width:100%; justify-content:center; background:${cat.color};" onclick="startQuiz()">Почати!</button>
+                        <button class="glass-button" style="width:100%; justify-content:center; margin-top:10px;" onclick="document.querySelector('.modal-overlay').remove()">Скасувати</button>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
-        function startQuiz(key) {
-            const cat = quizData[key];
-            const questions = cat.questions;
-            let idx = 0;
+        function startQuiz() { document.querySelector('.modal-overlay').remove(); renderQuestion(); }
 
-            function render() {
-                if (idx >= questions.length) return finishQuiz();
-                if (userStats.hearts <= 0) return showHome();
+        function renderQuestion() {
+            const key = currentQuizState.categoryKey; const idx = currentQuizState.qIndex; const questions = quizData[key].questions;
+            if(idx >= questions.length) return finishQuiz();
+            const q = questions[idx];
+            app.innerHTML = `
+                <div class="glass-card quiz-container anim-pop">
+                    <h2 style="color:${quizData[key].color}">${quizData[key].title}</h2>
+                    <div style="font-size:1.5rem; font-weight:bold; margin:25px 0;">${q.q}</div>
+                    <div>${q.a.map((opt, i) => `<button class="option-btn" onclick="handleAnswer(this, ${i})">${opt}</button>`).join('')}</div>
+                </div>`;
+        }
 
-                const q = questions[idx];
-                const hasSkin = userStats.inventory.includes('premium_skin');
-                
-                app.innerHTML = `
-                    <div class="glass-card anim-pop" style="text-align:center; max-width:600px; margin:0 auto;">
-                        <div id="q-avatar" class="avatar-img ${hasSkin ? 'premium' : ''}" style="width:80px; height:80px; font-size:3rem;">${hasSkin ? '👾' : '🤓'}</div>
-                        <h2 style="color:${cat.color}; margin-bottom:20px;">${cat.title}</h2>
-                        <div style="font-size:1.4rem; font-weight:700; margin-bottom:25px; min-height:60px;">${q.q}</div>
-                        <div>
-                            ${q.a.map((opt, i) => `<button class="option-btn" onclick="checkAnswer(${i}, ${q.correct}, '${q.explain}')">${opt}</button>`).join('')}
-                        </div>
-                        <button class="glass-button" style="margin-top:20px;" onclick="showHome()">Вийти</button>
-                    </div>
-                `;
+        window.handleAnswer = function(btn, selectedIdx) {
+            const key = currentQuizState.categoryKey; const idx = currentQuizState.qIndex; const q = quizData[key].questions[idx];
+            const correctIdx = q.correct;
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+            const isCorrect = (selectedIdx === correctIdx);
+            userStats.history.unshift({ text: q.q, correct: isCorrect }); if(userStats.history.length > 5) userStats.history.pop();
+
+            if (isCorrect) {
+                btn.classList.add('correct'); playSound('correct'); userStats.coins += 10;
+                setTimeout(() => { currentQuizState.qIndex++; renderQuestion(); }, 1000);
+            } else {
+                btn.classList.add('wrong'); document.querySelectorAll('.option-btn')[correctIdx].classList.add('correct');
+                playSound('wrong'); userStats.hearts--; updateHeader();
+                if (userStats.hearts <= 0) { setTimeout(() => { alert("Game Over!"); showHome(); }, 500); return; }
+                setTimeout(() => {
+                    const modal = document.createElement('div'); modal.className = 'modal-overlay';
+                    modal.innerHTML = `<div class="modal-content anim-pop"><h2 style="color:var(--wrong)">Помилка!</h2><p>${q.explain}</p><button class="glass-button" onclick="this.closest('.modal-overlay').remove(); currentQuizState.qIndex++; renderQuestion();">Далі</button></div>`;
+                    document.body.appendChild(modal);
+                }, 800);
             }
-
-            window.checkAnswer = (sel, cor, expl) => {
-                const btns = document.querySelectorAll('.option-btn');
-                const avatar = document.getElementById('q-avatar');
-                btns.forEach(b => b.disabled = true);
-
-                if (sel === cor) {
-                    btns[sel].classList.add('correct');
-                    avatar.classList.add('anim-correct');
-                    avatar.innerHTML = "😎";
-                    playSound('correct');
-                    userStats.coins += 15;
-                    setTimeout(() => { idx++; render(); }, 1500);
-                } else {
-                    btns[sel].classList.add('wrong');
-                    avatar.classList.add('anim-wrong');
-                    avatar.innerHTML = "🥺";
-                    playSound('wrong');
-                    userStats.hearts--;
-                    updateHeader();
-                    
-                    setTimeout(() => {
-                        const modal = document.createElement('div');
-                        modal.className = 'modal-overlay';
-                        modal.innerHTML = `
-                            <div class="modal-content anim-wrong">
-                                <h2 style="color:#e74c3c">Помилка! 😬</h2>
-                                <p style="margin:15px 0; font-size:1.1rem;">${expl}</p>
-                                <button class="glass-button" style="width:100%; justify-content:center;" onclick="this.closest('.modal-overlay').remove(); idx++; render();">Далі</button>
-                            </div>`;
-                        document.body.appendChild(modal);
-                    }, 800);
-                }
-            };
-            render();
-        }
+        };
 
         function finishQuiz() {
-            playSound('win');
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            app.innerHTML = `
-                <div class="glass-card anim-pop" style="text-align:center; padding:40px;">
-                    <div style="font-size:5rem;">🎉</div>
-                    <h2>Молодець!</h2>
-                    <p>Ти закінчив цей урок.</p>
-                    <div style="margin:20px 0; font-size:1.5rem; color:#ffd700; font-weight:bold;">+50 Монет</div>
-                    <button class="glass-button" style="width:100%; justify-content:center;" onclick="showHome()">В меню</button>
-                </div>
-            `;
-            userStats.coins += 50;
-            updateHeader();
+            playSound('win'); confetti(); userStats.coins += 50; updateHeader();
+            app.innerHTML = `<div class="glass-card anim-pop" style="text-align:center; padding:40px;"><div style="font-size:5rem;">🎉</div><h2>Молодець!</h2><p>Урок пройдено.</p><button class="glass-button" style="width:100%; justify-content:center; margin-top:20px;" onclick="showHome()">В меню</button></div>`;
         }
 
         showHome();
